@@ -1,25 +1,37 @@
+// Ejemplo de cómo debería estar configurado tu archivo app.js o server.js
 const express = require("express");
-const bodyParser = require("body-parser");
 const path = require("path");
-
 const app = express();
-const port = 3000;
 
-// Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+// Configuraciones
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Rutas
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+
+// Importar rutas
 const vendedoresRoutes = require("./routes/vendedores");
+
+// Registrar rutas - ASEGÚRATE QUE ESTA LÍNEA EXISTA EN TU ARCHIVO PRINCIPAL
 app.use("/vendedores", vendedoresRoutes);
 
-// Ruta principal
+// Ruta para la página principal
 app.get("/", (req, res) => {
   res.redirect("/vendedores");
 });
 
-// Iniciar servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+// Manejo de errores 404
+app.use((req, res, next) => {
+  res.status(404).send("Página no encontrada");
 });
+
+// Iniciar el servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
+
+module.exports = app;
